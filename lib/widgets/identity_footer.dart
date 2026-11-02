@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 // GANTI dengan NIM dan nama lengkap Kalian sendiri
-const String kNim = '2311522000';
-const String kNama = 'Nama Lengkap Mahasiswa';
+const String kNim = '2411533010';
+const String kNama = 'Dede Bintang Gafendi';
 
 /// Menampilkan NIM dan nama di bawah setiap halaman.
 /// Dipasang sekali di MaterialApp.builder, jadi berlaku untuk semua route.
