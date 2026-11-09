@@ -10,8 +10,7 @@ class Recipe {
   final double rating;
   final String image; // dipakai mulai Modul 7
   final List<String> ingredients;
-
- const Recipe({
+  const Recipe({
     required this.id,
     required this.name,
     required this.cuisine,
@@ -23,6 +22,6 @@ class Recipe {
     required this.rating,
     required this.image,
     required this.ingredients,
- });
- int get totalTimeMinutes => prepTimeMinutes + cookTimeMinutes;
+  });
+  int get totalTimeMinutes => prepTimeMinutes + cookTimeMinutes;
 }
