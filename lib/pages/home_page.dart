@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-// Sesuaikan nama package dengan project Anda (resepku atau flutter_application_1)
 import 'package:resepku/data/dummy_recipes.dart';
+import 'package:resepku/models/recipe.dart';
 import 'package:resepku/pages/settings_page.dart';
 import 'package:resepku/widgets/favorite_badge_button.dart';
 import 'package:resepku/widgets/recipe_grid_card.dart';
@@ -14,10 +14,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isGrid = false; // ephemeral state: hanya HomePage yang membutuhkan
+  bool _isGrid = false; 
+  String? _cuisine; // State untuk filter cuisine
 
   @override
   Widget build(BuildContext context) {
+    // Mengambil daftar cuisine unik dari data
+    final List<String> cuisines = ['Semua', ...dummyRecipes.map((r) => r.cuisine).toSet()];
+    
+    // Filter data berdasarkan chip yang dipilih
+    final filteredRecipes = _cuisine == null
+        ? dummyRecipes
+        : dummyRecipes.where((r) => r.cuisine == _cuisine).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -28,15 +37,12 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          // Tombol toggle list/grid
           IconButton(
             tooltip: _isGrid ? 'Tampilan list' : 'Tampilan grid',
             icon: Icon(_isGrid ? Icons.view_list : Icons.grid_view),
             onPressed: () => setState(() => _isGrid = !_isGrid),
           ),
-          // Tombol favorit
           const FavoriteBadgeButton(),
-          // Tombol pengaturan dari kode pertama
           IconButton(
             tooltip: 'Pengaturan',
             icon: const Icon(Icons.settings),
@@ -47,31 +53,64 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _isGrid ? _buildGrid() : _buildList(),
+      body: Column(
+        children: [
+          // Filter ChoiceChip
+          SizedBox(
+            height: 56,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: cuisines.length,
+              itemBuilder: (context, index) {
+                final cuisine = cuisines[index];
+                final isSelected = (_cuisine == null && cuisine == 'Semua') || cuisine == _cuisine;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(cuisine),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        _cuisine = cuisine == 'Semua' ? null : cuisine;
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+          // Expanded untuk Grid atau List
+          Expanded(
+            child: _isGrid ? _buildGrid(filteredRecipes) : _buildList(filteredRecipes),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildList() {
+  Widget _buildList(List<Recipe> recipes) {
     return ListView.builder(
-      itemCount: dummyRecipes.length,
+      itemCount: recipes.length,
       itemBuilder: (context, index) {
-        return RecipeTile(recipe: dummyRecipes[index]);
+        return RecipeTile(recipe: recipes[index]);
       },
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(List<Recipe> recipes) {
     return GridView.builder(
       padding: const EdgeInsets.all(8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
-        childAspectRatio: 3 / 4, // lebar : tinggi
+        childAspectRatio: 3 / 4,
       ),
-      itemCount: dummyRecipes.length,
+      itemCount: recipes.length,
       itemBuilder: (context, index) {
-        return RecipeGridCard(recipe: dummyRecipes[index]);
+        return RecipeGridCard(recipe: recipes[index]);
       },
     );
   }
